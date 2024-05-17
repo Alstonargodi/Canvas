@@ -16,11 +16,11 @@
         android:theme="@style/Theme.MyCamera">
 
         <activity
-            android:name=".CameraActivity"
+            android:name=".presentasion.CameraActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".presentasion.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

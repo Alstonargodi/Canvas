@@ -1,4 +1,4 @@
-package com.dicoding.picodiploma.mycamera
+package com.dicoding.picodiploma.mycamera.presentasion
 
 import android.content.Intent
 import android.os.Build
