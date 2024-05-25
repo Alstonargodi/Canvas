@@ -39,7 +39,7 @@ private fun getImageUriForPreQ(context: Context): Uri {
     if (imageFile.parentFile?.exists() == false) imageFile.parentFile?.mkdir()
     return FileProvider.getUriForFile(
         context,
-        "${BuildConfig.APPLICATION_ID}.fileprovider",
+        "com.dicoding.picodiploma.mycamera.fileprovider",
         imageFile
     )
     //content://com.dicoding.picodiploma.mycamera.fileprovider/my_images/MyCamera/20230825_133659.jpg
