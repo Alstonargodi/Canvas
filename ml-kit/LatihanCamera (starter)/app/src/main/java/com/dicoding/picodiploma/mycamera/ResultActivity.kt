@@ -22,6 +22,9 @@ class ResultActivity : AppCompatActivity() {
             binding.resultImage.setImageURI(it)
         }
 
+        val detectText = intent.getStringExtra(EXTRA_RESULT)
+        binding.resultText.text = detectText
+
     }
 
     companion object {

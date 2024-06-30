@@ -6,14 +6,25 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
+import com.dicoding.picodiploma.mycamera.R
 import com.dicoding.picodiploma.mycamera.presentasion.CameraActivity.Companion.CAMERAX_RESULT
 import com.dicoding.picodiploma.mycamera.databinding.ActivityMainBinding
+import com.dicoding.picodiploma.mycamera.remote.apiconfig.ApiConfig
+import com.dicoding.picodiploma.mycamera.remote.utils.Utils
+import com.dicoding.picodiploma.mycamera.remote.utils.Utils.reduceFileImage
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -103,7 +114,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadImage() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        currentImageUri?.let { uri ->
+            val imageFile = Utils.uriToFile(uri,this).reduceFileImage()
+            showLoading(true)
+            val requestImageFile = imageFile.asRequestBody("image/jpg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                "photo",
+                imageFile.name,
+                requestImageFile
+            )
+            postImage(multipartBody)
+        } ?:  showToast(getString(R.string.empty_image_warning))
+    }
+
+    //post image to server
+    private fun postImage(payload : MultipartBody.Part){
+        lifecycleScope.launch {
+            try {
+                val apiService = ApiConfig.getApiService()
+                val successResponse = apiService.uploadImage(payload)
+                with(successResponse.data){
+                    binding.resultTextView.text = if(isAboveThreshold == true){
+                        showToast(successResponse.message.toString())
+                        String.format("%s with %.2f%%", result, confidenceScore)
+                    } else{
+                        showToast("Model is predicted successfully but under threshold.")
+                        String.format("Please use the correct picture because  the confidence score is %.2f%%", confidenceScore)
+                    }
+                }
+            }catch (e : Exception){
+                Log.d("MainActivity",e.message.toString())
+                showToast("Model is predicted successfully but under threshold.")
+            }
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading : Boolean){
+        binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     companion object {
